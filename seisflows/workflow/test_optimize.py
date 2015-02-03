@@ -28,10 +28,10 @@ class test_optimize(object):
         if 'OPTIMIZE' not in PAR: 
             setattr(PAR,'OPTIMIZE','default')
 
-        if 'BEGIN' not in PAR:
+        if 'BEGIN' not in PAR.Workflow:
             raise Exception
 
-        if 'END' not in PAR:
+        if 'END' not in PAR.Workflow:
             raise Exception
 
 
@@ -51,7 +51,7 @@ class test_optimize(object):
     def main(cls):
         cls.setup()
 
-        for cls.iter in range(PAR.BEGIN, PAR.END+1):
+        for cls.iter in range(PAR.Workflow["BEGIN"], PAR.Workflow["END"]+1):
             print 'Starting iteration', cls.iter
             optimize.iter = cls.iter
 

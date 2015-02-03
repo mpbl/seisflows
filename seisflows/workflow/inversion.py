@@ -49,7 +49,7 @@ class inversion(object):
         if 'BEGIN' not in PAR:
             raise Exception
 
-        if 'END' not in PAR:
+        if 'END' not in PAR.Workflow:
             raise Exception
 
         if 'VERBOSE' not in PAR:
@@ -109,7 +109,7 @@ class inversion(object):
         """
         self.setup()
 
-        for self.iter in range(PAR.BEGIN, PAR.END+1):
+        for self.iter in range(PAR.Workflow["BEGIN"], PAR.Workflow["END"]+1):
             optimize.iter = self.iter
 
             print "Starting iteration", self.iter
@@ -132,7 +132,7 @@ class inversion(object):
         """ Lays groundwork for inversion
         """
         # clean scratch directories
-        if PAR.BEGIN == 1:
+        if PAR.Workflow["BEGIN"] == 1:
             unix.rm(PATH.GLOBAL)
             unix.mkdir(PATH.GLOBAL)
 
@@ -144,7 +144,7 @@ class inversion(object):
         postprocess.setup()
 
         # set up solver
-        if PAR.BEGIN == 1:
+        if PAR.Workflow["BEGIN"] == 1:
             system.run('solver', 'setup',
                        hosts='all')
             return

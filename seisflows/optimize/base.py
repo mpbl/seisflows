@@ -37,10 +37,10 @@ class base(object):
         """ Checks parameters, paths, and dependencies
         """
         # check parameters
-        if 'BEGIN' not in PAR:
+        if 'BEGIN' not in PAR.Workflow:
             raise Exception
 
-        if 'END' not in PAR:
+        if 'END' not in PAR.Workflow:
             raise Exception
 
         # check paths
@@ -92,7 +92,7 @@ class base(object):
             cls.NLCG = lib.NLCG(cls.path, PAR.NLCGTHRESH, PAR.NLCGMAX)
 
         elif PAR.SCHEME in ['QuasiNewton']:
-            cls.LBFGS = lib.LBFGS(cls.path, PAR.LBFGSMAX, PAR.BEGIN)
+            cls.LBFGS = lib.LBFGS(cls.path, PAR.LBFGSMAX, PAR.Workflow["BEGIN"])
 
         # prepare output writer
         cls.writer = OutputWriter(PATH.SUBMIT + '/' + 'output.optim',

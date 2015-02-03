@@ -108,7 +108,7 @@ class base(object):
 
         elif PAR.MUTE == 2:
             import system
-            vel = PAR.MUTESLOPE*(PAR.NREC + 1)/(PAR.XMAX - PAR.XMIN)
+            vel = PAR.MUTESLOPE*(PAR.Workflow["NREC"] + 1)/(PAR.XMAX - PAR.XMIN)
             off = PAR.MUTECONST
             src = system.getnode()
             s = smute(s, h, vel, off, src, constant_spacing=True)
@@ -245,9 +245,9 @@ class base(object):
             if h.nt != PAR.NT:
                 print 'Warning: h.nt != PAR.NT'
 
-        if 'NREC' in PAR:
-            if h.nr != PAR.NREC:
-                print 'Warning: h.nr != PAR.NREC'
+        if 'NREC' in PAR.Workflow:
+            if h.nr != PAR.Workflow["NREC"]:
+                print 'Warning: h.nr != PAR.Workflow["NREC"]'
 
         return h
 
