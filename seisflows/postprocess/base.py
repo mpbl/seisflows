@@ -25,14 +25,14 @@ class base(object):
         """ Checks parameters, paths, and dependencies
         """
         # check postprocessing settings
-        if 'SCALE' not in PAR:
-            setattr(PAR, 'SCALE', False)
+        if 'SCALE' not in PAR.Postprocessing:
+            PAR.Postprocessing['SCALE'] = False
 
-        if 'CLIP' not in PAR:
-            setattr(PAR, 'CLIP', 0.)
+        if 'CLIP' not in PAR.Postprocessing:
+            PAR.Postprocessing['CLIP'] = 0.
 
-        if 'SMOOTH' not in PAR:
-            setattr(PAR, 'SMOOTH', 0.)
+        if 'SMOOTH' not in PAR.Postprocessing:
+            PAR.Postprocessing['SMOOTH'] = 0.
 
         if 'PRECOND' not in PATH:
             setattr(PATH, 'PRECOND', None)
@@ -75,23 +75,23 @@ class base(object):
         g *= m
 
         # apply scaling
-        if float(PAR.SCALE) == 1.:
+        if float(PAR.Postprocessing["SCALE"]) == 1.:
             pass
-        elif not PAR.SCALE:
+        elif not PAR.Postprocessing["SCALE"]:
             pass
         else:
-            g *= PAR.SCALE
+            g *= PAR.Postprocessing["SCALE"]
 
         # apply clipping
-        if PAR.CLIP > 0.:
+        if PAR.Postprocessing["CLIP"] > 0.:
             raise NotImplementedError
 
         # apply smoothing
-        if PAR.SMOOTH > 0.:
+        if PAR.Postprocessing["SMOOTH"] > 0.:
             system.run('solver', 'smooth',
                        hosts='head',
                        path=path,
-                       span=PAR.SMOOTH)
+                       span=PAR.Postprocessing["SMOOTH"])
 
             g = solver.merge(solver.load(path +'/'+ tag))
 
