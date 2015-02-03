@@ -4,6 +4,8 @@ import sys
 import types
 from os.path import abspath, join
 
+import yaml
+
 from seisflows.tools import unix
 from seisflows.tools.code import Struct, loadobj, savejson, saveobj
 
@@ -157,6 +159,17 @@ def loadclass(*args):
 
 def loadvars(*args, **kwargs):
     return _vars(_import(*args, **kwargs))
+
+
+def get_dic_from_yaml(file_name):
+    """Parse a yaml file and return a hierarchical dictionary.
+
+    For now it return raw values. 
+    """
+    dic = {}
+    with open(file_name, "r") as f:
+        dic = yaml.load(f)
+    return dic
 
 
 def findpath(obj):

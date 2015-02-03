@@ -38,7 +38,7 @@ if __name__ == '__main__':
 
     # prompt user for selections
     #opts = unix.ls(path)
-    opts = ['Examples2d', 'Examples3d', 'Examples3dGlobe']
+    opts = ['examples2d', 'examples3d', 'examples3dGlobe']
     opt = unix.select(opts)
     print ''
     path = join(path, opt)
