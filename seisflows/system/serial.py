@@ -37,11 +37,11 @@ class serial(object):
             setattr(PAR, 'SUBTITLE', unix.basename(abspath('..')))
 
         # check parameters
-        if 'NTASK' not in PAR:
-            setattr(PAR, 'NTASK', 1)
+        if 'NTASK' not in PAR.General["System"]:
+            Par.General["System"]["NTASK"] = 1
 
-        if 'NPROC' not in PAR:
-            setattr(PAR, 'NPROC', 1)
+        if 'NPROC' not in PAR.General["System"]:
+            PAR.Genera["Sytem"]["NPROC"] = 1
 
         if 'VERBOSE' not in PAR:
             setattr(PAR, 'VERBOSE', 1)
@@ -82,7 +82,7 @@ class serial(object):
         unix.mkdir(PATH.SYSTEM)
 
         if hosts == 'all':
-            for itask in range(PAR.NTASK):
+            for itask in range(PAR.General["System"]["NTASK"]):
                 self.setnode(itask)
                 self.progress(itask)
                 func = getattr(__import__(classname), funcname)
@@ -108,9 +108,10 @@ class serial(object):
 
     def mpiexec(self):
         """Wrapper for mpiexec"""
-        return 'mpiexec -np %d '%PAR.NPROC
+        return 'mpiexec -np %d '%PAR.General["System"]["NPROC"]
 
     def progress(self, itask=None):
         """Prints status updates"""
-        if PAR.VERBOSE and PAR.NTASK > 1:
-            print ' task ' + '%02d'%(itask + 1) + ' of ' + '%02d'%PAR.NTASK
+        if PAR.VERBOSE and PAR.General["System"]["NTASK"] > 1:
+            print ' task ' + '%02d'%(itask + 1) + ' of ' 
+                  + '%02d'%PAR.General["System"]["NTASK"]

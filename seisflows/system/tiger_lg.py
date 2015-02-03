@@ -35,8 +35,8 @@ class tiger_lg(loadclass('system', 'slurm_lg')):
         if 'LOCAL' not in PATH:
             setattr(PATH, 'LOCAL', '')
 
-        if 'NPROC_PER_NODE' not in PAR:
-            setattr(PAR, 'NPROC_PER_NODE', 16)
+        if 'NPROC_PER_NODE' not in PAR.General["System"]:
+            PAR.General["System"]["NPROC_PER_NODE"] = 16
 
         super(tiger_lg, self).check()
 

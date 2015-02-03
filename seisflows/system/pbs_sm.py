@@ -27,14 +27,14 @@ class pbs_sm(object):
         """
 
         # check parameters
-        if 'NTASK' not in PAR:
+        if 'NTASK' not in PAR.General["System"]:
             raise Exception
 
-        if 'NPROC' not in PAR:
+        if 'NPROC' not in PAR.General["System"]:
             raise Exception
 
-        if 'WALLTIME' not in PAR:
-            setattr(PAR, 'WALLTIME', 30.)
+        if 'WALLTIME' not in PAR.General["System"]:
+            PAR.General["System"].["WALLTIME"] = 30.
 
         if 'VERBOSE' not in PAR:
             setattr(PAR, 'VERBOSE', 1)
@@ -73,10 +73,10 @@ class pbs_sm(object):
         save_parameters('SeisflowsParameters.json')
         save_paths('SeisflowsPaths.json')
 
-        nodes = PAR.NTASK/16
-        cores = PAR.NTASK%16
-        hours = PAR.WALLTIME/60
-        minutes = PAR.WALLTIME%60
+        nodes = PAR.General["System"]["NTASK"]/16
+        cores = PAR.General["System"]["NTASK"]%16
+        hours = PAR.General["System"]["WALLTIME"]/60
+        minutes = PAR.General["System"]["WALLTIME"]%60
 
         # construct resource list
         resources = 'walltime=%02d:%02d:00 '%(hours, minutes)
@@ -143,4 +143,4 @@ class pbs_sm(object):
         return int(os.getenv('PBS_VNODENUM'))
 
     def mpiargs(self):
-        return 'mpirun -np %d '%PAR.NPROC
+        return 'mpirun -np %d '%PAR.General["System"]["NPROC"]

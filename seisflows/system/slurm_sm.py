@@ -33,14 +33,14 @@ class slurm_sm(object):
         """
 
         # check parameters
-        if 'NTASK' not in PAR:
+        if 'NTASK' not in PAR.General["System"]:
             raise Exception
 
-        if 'NPROC' not in PAR:
+        if 'NPROC' not in PAR.General["System"]:
             raise Exception
 
-        if 'WALLTIME' not in PAR:
-            setattr(PAR, 'WALLTIME', 30.)
+        if 'WALLTIME' not in PAR.General["System"]:
+            PAR.General["System"]["WALLTIME"] = 30.
 
         if 'VERBOSE' not in PAR:
             setattr(PAR, 'VERBOSE', 1)
@@ -80,9 +80,9 @@ class slurm_sm(object):
         args = ('sbatch '
                 + '--job-name=%s '%PAR.TITLE
                 + '--output=%s '%(PATH.SUBMIT + '/' + 'output.log')
-                + '--cpus-per-task=%d '%PAR.NPROC
-                + '--ntasks=%d '%PAR.NTASK
-                + '--time=%d '%PAR.WALLTIME
+                + '--cpus-per-task=%d '%PAR.General["System"]["NPROC"]
+                + '--ntasks=%d '%PAR.General["System"]["NTASK"]
+                + '--time=%d '%PAR.General["System"]["WALLTIME"]
                 + findpath('system') + '/' + 'slurm/wrapper_sbatch '
                 + PATH.OUTPUT)
 
@@ -135,4 +135,4 @@ class slurm_sm(object):
         return int(gid[lid])
 
     def mpiargs(self):
-        return 'mpirun -np %d '%PAR.NPROC
+        return 'mpirun -np %d '%PAR.General["System"]["NPROC"]

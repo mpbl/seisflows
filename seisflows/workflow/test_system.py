@@ -11,11 +11,11 @@ class test_system:
     """ Tests system interface.
     """
     def check(self):
-        if 'NTASK' not in PAR:
+        if 'NTASK' not in PAR.General["Solver"]:
             raise Exception
 
-        if 'NPROC' not in PAR:
-            setattr(PAR,'NPROC',1)
+        if 'NPROC' not in PAR.General["Solver"]:
+            PAR.General["Solver"]['NPROC'] = 1
 
         if 'VERBOSE' not in PAR:
             setattr(PAR,'VERBOSE',0)

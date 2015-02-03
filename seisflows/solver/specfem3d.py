@@ -260,7 +260,8 @@ class specfem3d(object):
         else:
             logfile = None
 
-        return load(dirname, self.model_parameters, mapping, PAR.NPROC, logfile)
+        return load(dirname, self.model_parameters, mapping, 
+                    PAR.General["System"]["NPROC"], logfile)
 
 
     def save(self, dirname, parts):
@@ -283,7 +284,7 @@ class specfem3d(object):
         """
         v = np.array([])
         for key in self.inversion_parameters:
-            for iproc in range(PAR.NPROC):
+            for iproc in range(PAR.General["System"]["NPROC"]):
                 v = np.append(v, parts[key][iproc])
         return v
 
@@ -292,19 +293,19 @@ class specfem3d(object):
         """ splits vector into dictionary
         """
         parts = {}
-        nrow = len(v)/(PAR.NPROC*len(self.inversion_parameters))
+        nrow = len(v)/(PAR.General["System"]["NPROC"]*len(self.inversion_parameters))
         j = 0
         for key in self.model_parameters:
             parts[key] = []
             if key in self.inversion_parameters:
-                for i in range(PAR.NPROC):
-                    imin = nrow*PAR.NPROC*j + nrow*i
-                    imax = nrow*PAR.NPROC*j + nrow*(i + 1)
+                for i in range(PAR.General["System"]["NPROC"]):
+                    imin = nrow*PAR.General["System"]["NPROC"]*j + nrow*i
+                    imax = nrow*PAR.General["System"]["NPROC"]*j + nrow*(i + 1)
                     i += 1
                     parts[key].append(v[imin:imax])
                 j += 1
             else:
-                for i in range(PAR.NPROC):
+                for i in range(PAR.General["System"]["NPROC"]):
                     proc = '%06d' % i
                     parts[key].append(
                         np.load(PATH.GLOBAL +'/'+ 'mesh' +'/'+ key +'/'+ proc))
@@ -497,7 +498,7 @@ class specfem3d(object):
                 for key in self.model_parameters:
                     if key not in self.inversion_parameters:
                         unix.mkdir(path +'/'+ key)
-                        for proc in range(PAR.NPROC):
+                        for proc in range(PAR.General["System"]["NPROC"]):
                             with open(path +'/'+ key +'/'+ '%06d' % proc, 'w') as file:
                                 np.save(file, parts[key][proc])
 
@@ -510,7 +511,7 @@ class specfem3d(object):
             #if not exists(path):
             #    for key in inversion_set:
             #        unix.mkdir(path +'/'+ key)
-            #        for proc in range(PAR.NPROC):
+            #        for proc in range(PAR.General["System"]["NPROC"]):
             #            with open(path +'/'+ key +'/'+ '%06d' % proc, 'w') as file:
             #                np.save(file, parts[key][proc])
 

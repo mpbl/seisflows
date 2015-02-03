@@ -38,17 +38,17 @@ class slurm_lg(object):
             setattr(PAR, 'SUBTITLE', unix.basename(abspath('..')))
 
         # check parameters
-        if 'NTASK' not in PAR:
+        if 'NTASK' not in PAR.General["System"]:
             raise Exception
 
-        if 'NPROC' not in PAR:
+        if 'NPROC' not in PAR.General["System"]:
             raise Exception
 
-        if 'NPROC_PER_NODE' not in PAR:
+        if 'NPROC_PER_NODE' not in PAR.General["System"]:
             raise Exception
 
-        if 'WALLTIME' not in PAR:
-            setattr(PAR, 'WALLTIME', 30.)
+        if 'WALLTIME' not in PAR.General["System"]:
+            PAR.General["System"]["WALLTIME"] = 30.
 
         if 'STEPTIME' not in PAR:
             setattr(PAR, 'STEPTIME', 30.)
@@ -91,9 +91,9 @@ class slurm_lg(object):
         args = ('sbatch '
                 + '--job-name=%s ' % PAR.TITLE
                 + '--output %s ' % (PATH.SUBMIT+'/'+'output.log')
-                + '--ntasks-per-node=%d ' % PAR.NPROC_PER_NODE
+                + '--ntasks-per-node=%d ' % PAR.General["System"]["NPROC_PER_NODE"]
                 + '--nodes=%d ' % 1
-                + '--time=%d ' % PAR.WALLTIME
+                + '--time=%d ' % PAR.General["System"]["WALLTIME"]
                 + findpath('system') +'/'+ 'slurm/wrapper_sbatch '
                 + PATH.OUTPUT)
 
@@ -120,7 +120,7 @@ class slurm_lg(object):
 
         # prepare sbatch arguments
         if hosts == 'all':
-            args = ('--array=%d-%d ' % (0,PAR.NTASK-1)                             
+            args = ('--array=%d-%d ' % (0,PAR.General["System"]["NTASK"]-1)                             
                    +'--output %s ' % (PATH.SUBMIT+'/'+'output.slurm/'+'%A_%a'))
 
         elif hosts == 'head':
@@ -132,8 +132,9 @@ class slurm_lg(object):
 
         args = ('sbatch '
                 + '--job-name=%s ' % PAR.TITLE
-                + '--nodes=%d ' % math.ceil(PAR.NPROC/float(PAR.NPROC_PER_NODE))
-                + '--ntasks-per-node=%d ' % PAR.NPROC_PER_NODE
+                + '--nodes=%d ' % (math.ceil(PAR.General["System"]["NPROC"] 
+                              / float(PAR.General["System"]["NPROC_PER_NODE"])))
+                + '--ntasks-per-node=%d ' % PAR.General["System"]["NPROC_PER_NODE"]
                 + '--time=%d ' % PAR.STEPTIME
                 + args
                 + findpath('system') +'/'+ 'slurm/wrapper_srun '
@@ -149,8 +150,8 @@ class slurm_lg(object):
         with open(PATH.SYSTEM+'/'+'job_id', 'r') as f:
             line = f.readline()
             job = line.split()[-1].strip()
-        if hosts == 'all' and PAR.NTASK > 1:
-            nn = range(PAR.NTASK)
+        if hosts == 'all' and PAR.General["System"]["NTASK"] > 1:
+            nn = range(PAR.General["System"]["NTASK"])
             return [job+'_'+str(ii) for ii in nn]
         else:
             return [job]
