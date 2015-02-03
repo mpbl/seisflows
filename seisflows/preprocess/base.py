@@ -19,43 +19,34 @@ class base(object):
         """ Checks parameters, paths, and dependencies
         """
 
-        if 'MISFIT' not in PAR:
-            setattr(PAR, 'MISFIT', 'wav')
-
-        if 'FORMAT' not in PAR:
+        if 'MISFIT' not in PAR.Preprocessing:
+            Par.Preprocessing['MISFIT'] = 'wav'
+        if 'FORMAT' not in PAR.Preprocessing:
             raise Exception
-
-        if 'CHANNELS' not in PAR:
+        if 'CHANNELS' not in PAR.Preprocessing:
             raise Exception
-
-        if 'NORMALIZE' not in PAR:
-            setattr(PAR, 'NORMALIZE', True)
+        if 'NORMALIZE' not in PAR.Preprocessing:
+            Par.Preprocessing['NORMALIZE'] = True
 
         # mute settings
-        if 'MUTE' not in PAR:
-            setattr(PAR, 'MUTE', False)
-
-        if 'MUTESLOPE' not in PAR:
-            setattr(PAR, 'MUTESLOPE', 0.)
-
-        if 'MUTECONST' not in PAR:
-            setattr(PAR, 'MUTECONST', 0.)
+        if 'MUTE' not in PAR.Preprocessing:
+            PAR.Preprocessing['MUTE'] = False
+        if 'MUTESLOPE' not in PAR.Preprocessing:
+            PAR.Preprocessing['MUTESLOPE'] = 0.
+        if 'MUTECONST' not in PAR.Preprocessing:
+            PAR.Preprocessing['MUTECONST'] = 0.
 
         # filter settings
-        if 'BANDPASS' not in PAR:
-            setattr(PAR, 'BANDPASS', False)
-
-        if 'HIGHPASS' not in PAR:
-            setattr(PAR, 'HIGHPASS', False)
-
-        if 'LOWPASS' not in PAR:
-            setattr(PAR, 'LOWPASS', False)
-
-        if 'FREQLO' not in PAR:
-            setattr(PAR, 'FREQLO', 0.)
-
-        if 'FREQHI' not in PAR:
-            setattr(PAR, 'FREQHI', 0.)
+        if 'BANDPASS' not in PAR.Preprocessing:
+            PAR.Preprocessing['BANDPASS'] = False
+        if 'HIGHPASS' not in PAR.Preprocessing:
+            PAR.Preprocessing['HIGHPASS'] = False
+        if 'LOWPASS' not in PAR.Preprocessing:
+            PAR.Preprocessing['LOWPASS'] = False
+        if 'FREQLO' not in PAR.Preprocessing:
+            PAR.Preprocessing['FREQLO'] = 0.
+        if 'FREQHI' not in PAR.Preprocessing:
+            PAR.Preprocessing['FREQHI'] = 0.
 
 
     def setup(self):
@@ -64,9 +55,9 @@ class base(object):
           Called at beginning of an inversion, prior to any model update 
           iterations.
         """
-        self.reader = getattr(readers, PAR.FORMAT)
-        self.writer = getattr(writers, PAR.FORMAT)
-        self.channels = [char for char in PAR.CHANNELS]
+        self.reader = getattr(readers, PAR.Preprocessing["FORMAT"])
+        self.writer = getattr(writers, PAR.Preprocessing["FORMAT"])
+        self.channels = [char for char in PAR.Preprocessing["CHANNELS"]]
 
 
     def prepare_eval_grad(self, path='.'):
@@ -91,25 +82,25 @@ class base(object):
         """ Performs data processing operations on traces
         """
         # filter data
-        if PAR.BANDPASS:
-            s = sbandpass(s, h, PAR.FREQLO, PAR.FREQHI)
+        if PAR.Preprocessing["BANDPASS"]:
+            s = sbandpass(s, h, PAR.Preprocessing["FREQLO"], PAR.Preprocessing["FREQHI"])
 
-        if PAR.HIGHPASS:
-            s = shighpass(s, h, PAR.FREQLO)
+        if PAR.Preprocessing["HIGHPASS"]:
+            s = shighpass(s, h, PAR.Preprocessing["FREQLO"])
 
-        if PAR.HIGHPASS:
-            s = slowpass(s, h, PAR.FREQHI)
+        if PAR.Preprocessing["HIGHPASS"]:
+            s = slowpass(s, h, PAR.Preprocessing["FREQHI"])
 
         # mute direct arrival
-        if PAR.MUTE == 1:
-            vel = PAR.MUTESLOPE
-            off = PAR.MUTECONST
+        if PAR.Preprocessing["MUTE"] == 1:
+            vel = PAR.Preprocessing["MUTESLOPE"]
+            off = PAR.Preprocessing["MUTECONST"]
             s = smute(s, h, vel, off, constant_spacing=False)
 
-        elif PAR.MUTE == 2:
+        elif PAR.Preprocessing["MUTE"] == 2:
             import system
-            vel = PAR.MUTESLOPE*(PAR.Workflow["NREC"] + 1)/(PAR.XMAX - PAR.XMIN)
-            off = PAR.MUTECONST
+            vel = PAR.Preprocessing["MUTESLOPE"]*(PAR.Workflow["NREC"] + 1)/(PAR.XMAX - PAR.XMIN)
+            off = PAR.Preprocessing["MUTECONST"]
             src = system.getnode()
             s = smute(s, h, vel, off, src, constant_spacing=True)
 
@@ -137,7 +128,7 @@ class base(object):
             s[:,i] = self.call_adjoint(s[:,i], d[:,i], h.nt, h.dt)
 
         # normalize traces
-        if PAR.NORMALIZE:
+        if PAR.Preprocessing["NORMALIZE"]:
             for ir in range(h.nr):
                 w = np.linalg.norm(d[:,ir], ord=2)
                 if w > 0: 
@@ -151,19 +142,19 @@ class base(object):
     def call_adjoint(self, wsyn, wobs, nt, dt):
         """ Wrapper for generating adjoint traces
         """
-        if PAR.MISFIT in ['wav', 'wdiff']:
+        if PAR.Preprocessing["MISFIT"] in ['wav', 'wdiff']:
             # waveform difference
             w = adjoint.wdiff(wsyn, wobs, nt, dt)
-        elif PAR.MISFIT in ['tt', 'wtime']:
+        elif PAR.Preprocessing["MISFIT"] in ['tt', 'wtime']:
             # traveltime
             w = adjoint.wtime(wsyn, wobs, nt, dt)
-        elif PAR.MISFIT in ['ampl', 'wampl']:
+        elif PAR.Preprocessing["MISFIT"] in ['ampl', 'wampl']:
             # amplitude
             w = adjoint.wampl(wsyn, wobs, nt, dt)
-        elif PAR.MISFIT in ['env', 'ediff']:
+        elif PAR.Preprocessing["MISFIT"] in ['env', 'ediff']:
             # envelope
             w = adjoint.ediff(wsyn, wobs, nt, dt, eps=0.05)
-        elif PAR.MISFIT in ['cdiff']:
+        elif PAR.Preprocessing["MISFIT"] in ['cdiff']:
             # cross correlation
             w = adjoint.cdiff(wsyn, wobs, nt, dt)
         else:
@@ -173,19 +164,19 @@ class base(object):
     def call_misfit(self, wsyn, wobs, nt, dt):
         """ Wrapper for evaluating misfit function
         """
-        if PAR.MISFIT in ['wav', 'wdiff']:
+        if PAR.Preprocessing["MISFIT"] in ['wav', 'wdiff']:
             # waveform difference
             e = misfit.wdiff(wsyn, wobs, nt, dt)
-        elif PAR.MISFIT in ['tt', 'wtime']:
+        elif PAR.Preprocessing["MISFIT"] in ['tt', 'wtime']:
             # traveltime
             e = misfit.wtime(wsyn, wobs, nt, dt)
-        elif PAR.MISFIT in ['ampl', 'wampl']:
+        elif PAR.Preprocessing["MISFIT"] in ['ampl', 'wampl']:
             # amplitude
             e = misfit.wampl(wsyn, wobs, nt, dt)
-        elif PAR.MISFIT in ['env', 'ediff']:
+        elif PAR.Preprocessing["MISFIT"] in ['env', 'ediff']:
             # envelope
             e = misfit.ediff(wsyn, wobs, nt, dt, eps=0.05)
-        elif PAR.MISFIT in ['cdiff']:
+        elif PAR.Preprocessing["MISFIT"] in ['cdiff']:
             # cross correlation
             e = misfit.cdiff(wsyn, wobs, nt, dt)
         else:
