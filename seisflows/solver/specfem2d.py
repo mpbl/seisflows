@@ -74,13 +74,13 @@ class specfem2d(object):
         """ Checks parameters, paths, and dependencies
         """
         # check time stepping parameters
-        if 'NT' not in PAR:
+        if 'NT' not in PAR.Solver:
             raise Exception
 
-        if 'DT' not in PAR:
+        if 'DT' not in PAR.Solver:
             raise Exception
 
-        if 'F0' not in PAR:
+        if 'F0' not in PAR.Solver:
             raise Exception
 
         # check paths
@@ -438,7 +438,7 @@ class specfem2d(object):
         dst = 'DATA/SOURCE'
         unix.cp(src, dst)
 
-        solvertools.setpar('f0', PAR.F0, 'DATA/SOURCE')
+        solvertools.setpar('f0', PAR.Solver["F0"], 'DATA/SOURCE')
 
 
     def initialize_adjoint_traces(self):

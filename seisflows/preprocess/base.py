@@ -99,7 +99,8 @@ class base(object):
 
         elif PAR.Preprocessing["MUTE"] == 2:
             import system
-            vel = PAR.Preprocessing["MUTESLOPE"]*(PAR.Workflow["NREC"] + 1)/(PAR.XMAX - PAR.XMIN)
+            vel = PAR.Preprocessing["MUTESLOPE"]*(PAR.Workflow["NREC"] + 1) \
+                / (PAR.Solver["XMAX"] - PAR.Solver["XMIN"])
             off = PAR.Preprocessing["MUTECONST"]
             src = system.getnode()
             s = smute(s, h, vel, off, src, constant_spacing=True)
@@ -228,13 +229,13 @@ class base(object):
         """
         h = headers.values()[0]
 
-        if 'DT' in PAR:
-            if h.dt != PAR.DT:
-                h.dt = PAR.DT
+        if 'DT' in PAR.Solver:
+            if h.dt != PAR.Solver["DT"]:
+                h.dt = PAR.Solver["DT"]
 
-        if 'NT' in PAR:
-            if h.nt != PAR.NT:
-                print 'Warning: h.nt != PAR.NT'
+        if 'NT' in PAR.Solver:
+            if h.nt != PAR.Solver["NT"]:
+                print 'Warning: h.nt != PAR.Solver["NT"]'
 
         if 'NREC' in PAR.Workflow:
             if h.nr != PAR.Workflow["NREC"]:

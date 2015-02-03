@@ -79,16 +79,17 @@ def write_parameters(par, version='git-devel'):
     file = findpath('seistools') + '/' + 'specfem2d/par-' + version
     with open(file, 'r') as f:
         lines = f.readlines()
-    lines[-1] = ' '.join(['1', str(par.NX), '1', str(par.NZ), '1'])
+    lines[-1] = ' '.join(['1', str(par.Solver["NX"]), '1', 
+        str(par.Solver["NZ"]), '1'])
 
     # write parameter file
     file = 'DATA/Par_file'
     _writelines(file, lines)
-    setpar('xmin', str(par.XMIN))
-    setpar('xmax', str(par.XMAX))
-    setpar('nx', str(par.NX))
-    setpar('nt', str(par.NT))
-    setpar('deltat', str(par.DT))
+    setpar('xmin', str(par.Solver["XMIN"]))
+    setpar('xmax', str(par.Solver["XMAX"]))
+    setpar('nx', str(par.Solver["NX"]))
+    setpar('nt', str(par.Solver["NT"]))
+    setpar('deltat', str(par.Solver["DT"]))
     setpar('nsources', str(1))
 
     # write interfaces file
@@ -96,12 +97,12 @@ def write_parameters(par, version='git-devel'):
     lines = []
     lines.extend('2\n')
     lines.extend('2\n')
-    lines.extend('%f %f\n'%(par.XMIN, par.ZMIN))
-    lines.extend('%f %f\n'%(par.XMAX, par.ZMIN))
+    lines.extend('%f %f\n'%(par.Solver["XMIN"], par.Solver["ZMIN"]))
+    lines.extend('%f %f\n'%(par.Solver["XMAX"], par.Solver["ZMIN"]))
     lines.extend('2\n')
-    lines.extend('%f %f\n'%(par.XMIN, par.ZMAX))
-    lines.extend('%f %f\n'%(par.XMAX, par.ZMAX))
-    lines.extend(str(par.NZ))
+    lines.extend('%f %f\n'%(par.Solver["XMIN"], par.Solver["ZMAX"]))
+    lines.extend('%f %f\n'%(par.Solver["XMAX"], par.Solver["ZMAX"]))
+    lines.extend(str(par.Solver["NZ"]))
     _writelines(file, lines)
 
 
