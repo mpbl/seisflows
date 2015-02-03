@@ -17,38 +17,38 @@ if __name__ == '__main__':
     PATH.update(loadvars('paths', '.'))
 
     # check parameters
-    if 'SYSTEM' not in PAR:
+    if 'SYSTEM' not in PAR.General:
         raise Exception
-    if 'PREPROCESS' not in PAR:
-        setattr(PAR, 'PREPROCESS', 'default')
-    if 'POSTPROCESS' not in PAR:
-        setattr(PAR, 'POSTPROCESS', 'default')
-    if 'SOLVER' not in PAR:
+    if 'PREPROCESS' not in PAR.General:
+        PAR.General['PREPROCESS'] = 'default'
+    if 'POSTPROCESS' not in PAR.General:
+        PAR.General['POSTPROCESS'] = 'default'
+    if 'SOLVER' not in PAR.General:
         raise Exception
-    if 'OPTIMIZE' not in PAR:
-        setattr(PAR, 'OPTIMIZE', 'default')
-    if 'WORKFLOW' not in PAR:
+    if 'OPTIMIZE' not in PAR.General:
+        PAR.General['OPTIMIZE'] = 'default'
+    if 'WORKFLOW' not in PAR.General:
         raise Exception
 
     register = OBJ.register
 
     # load objects
-    system = loadclass('system', PAR.SYSTEM)()
+    system = loadclass('system', PAR.General["SYSTEM"])()
     register('system', system)
 
-    preprocess = loadclass('preprocess', PAR.PREPROCESS)()
+    preprocess = loadclass('preprocess', PAR.General["PREPROCESS"])()
     register('preprocess', preprocess)
 
-    solver = loadclass('solver', PAR.SOLVER)()
+    solver = loadclass('solver', PAR.General["SOLVER"])()
     register('solver', solver)
 
-    postprocess = loadclass('postprocess', PAR.POSTPROCESS)()
+    postprocess = loadclass('postprocess', PAR.General["POSTPROCESS"])()
     register('postprocess', postprocess)
 
-    optimize = loadclass('optimize', PAR.OPTIMIZE)()
+    optimize = loadclass('optimize', PAR.General["OPTIMIZE"])()
     register('optimize', optimize)
 
-    workflow = loadclass('workflow', PAR.WORKFLOW)()
+    workflow = loadclass('workflow', PAR.General["WORKFLOW"])()
     register('workflow', workflow)
 
     # check objects

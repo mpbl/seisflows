@@ -15,7 +15,7 @@ from seisflows.tools.config import loadclass, ParameterObj
 PAR = ParameterObj('parameters', mypath)
 PATH = ParameterObj('paths', mypath)
 
-system = loadclass('system', PAR.SYSTEM)()
+system = loadclass('system', PAR.General["SYSTEM"])()
 
 if __name__ == '__main__':
     if system.getnode == 0:
