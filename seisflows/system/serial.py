@@ -113,5 +113,5 @@ class serial(object):
     def progress(self, itask=None):
         """Prints status updates"""
         if PAR.VERBOSE and PAR.General["System"]["NTASK"] > 1:
-            print ' task ' + '%02d'%(itask + 1) + ' of ' 
+            print ' task ' + '%02d'%(itask + 1) + ' of ' \
                   + '%02d'%PAR.General["System"]["NTASK"]
