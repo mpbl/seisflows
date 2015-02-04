@@ -103,6 +103,7 @@ class slurm_lg(object):
     def run(self, classname, funcname, hosts='all', **kwargs):
         """  Runs tasks in serial or parallel on specified hosts.
         """
+
         self.save_objects()
 
         self.save_kwargs(classname, funcname, kwargs)
@@ -118,9 +119,32 @@ class slurm_lg(object):
     def launch(self, classname, funcname, hosts='all'):
         unix.mkdir(PATH.SYSTEM)
 
+        ntask = PAR.General["System"]["NTASK"]
+        nproc = PAR.General["System"]["NPROC"]
+        ppn = PAR.General["System"]["NPROC_PER_NODE"]
+        walltime = PAR.General["System"]["WALLTIME"]
+        
+        # Find if system parameters have been overloaded for this class 
+        # * Find which class we are dealing with
+        #   -> Look for "System" 
+        #      -> Look for overloaded parameters
+        operation_type = classname.capitalize()
+        if operation_type in PAR.keys():
+            operation_param = PAR[operation_type]
+            if "System" in operation_param: 
+                operation_system = operation_param["System"]
+                if "NTASK" in operation_system:
+                    ntask = operation_system["NTASK"]
+                if "NPROC" in operation_system:
+                    nproc = operation_system["NPROC"]
+                if "NPROC_PER_NODE" in operation_system:
+                    ppn = operation_system["NPROC_PER_NODE"]
+                if "WALLTIME" in operation_system:
+                    walltime = operation_system["WALLTIME"]
+
         # prepare sbatch arguments
         if hosts == 'all':
-            args = ('--array=%d-%d ' % (0,PAR.General["System"]["NTASK"]-1)                             
+            args = ('--array=%d-%d ' % (0, ntask-1)                             
                    +'--output %s ' % (PATH.SUBMIT+'/'+'output.slurm/'+'%A_%a'))
 
         elif hosts == 'head':
@@ -132,15 +156,19 @@ class slurm_lg(object):
 
         args = ('sbatch '
                 + '--job-name=%s ' % PAR.TITLE
-                + '--nodes=%d ' % (math.ceil(PAR.General["System"]["NPROC"] 
-                              / float(PAR.General["System"]["NPROC_PER_NODE"])))
-                + '--ntasks-per-node=%d ' % PAR.General["System"]["NPROC_PER_NODE"]
-                + '--time=%d ' % PAR.STEPTIME
+                + '--nodes=%d ' % (math.ceil(nproc / float(ppn)))
+                + '--ntasks-per-node=%d ' % ppn
+                + '--time=%d ' % walltime 
                 + args
                 + findpath('system') +'/'+ 'slurm/wrapper_srun '
                 + PATH.OUTPUT + ' '
                 + classname + ' '
                 + funcname + ' ')
+
+        if PAR.VERBOSE >= 2:
+            print "Launching:..........................."
+            print args 
+            print ".....................................\n"
 
         # submit jobs
         with open(PATH.SYSTEM+'/'+'job_id', 'w') as f:

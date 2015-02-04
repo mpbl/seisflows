@@ -98,6 +98,14 @@ class ParameterObj(object):
             raise TypeError("Once defined, parameters cannot deleted.")
         raise KeyError
 
+    def __getitem__(self, key):
+        # Since it is dictionary like, we may want to access the objects
+        # as in a regular dictionary
+        return self.__dict__[key]
+
+    def keys(self):
+        return self.__dict__.keys()
+
     def update(self, newdict):
         super(ParameterObj, self).__setattr__('__dict__', newdict)
 
