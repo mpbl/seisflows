@@ -39,7 +39,6 @@ class base(object):
         # check parameters
         if 'BEGIN' not in PAR.Workflow:
             raise Exception
-
         if 'END' not in PAR.Workflow:
             raise Exception
 
@@ -51,33 +50,33 @@ class base(object):
             setattr(PATH, 'OPTIMIZE', join(PATH.GLOBAL, 'optimize'))
 
         # search direction parameters
-        if 'SCHEME' not in PAR:
-            setattr(PAR, 'SCHEME', 'QuasiNewton')
+        if 'SCHEME' not in PAR.Optimization:
+            PAR.Optimization['SCHEME'] = 'QuasiNewton'
 
-        if 'NLCGMAX' not in PAR:
-            setattr(PAR, 'NLCGMAX', 10)
+        if 'NLCGMAX' not in PAR.Optimization:
+            PAR.Optimization['NLCGMAX'] = 10
 
-        if 'NLCGTHRESH' not in PAR:
-            setattr(PAR, 'NLCGTHRESH', 0.5)
+        if 'NLCGTHRESH' not in PAR.Optimization:
+            PAR.Optimization['NLCGTHRESH'] = 0.5
 
-        if 'LBFGSMAX' not in PAR:
-            setattr(PAR, 'LBFGSMAX', 6)
+        if 'LBFGSMAX' not in PAR.Optimization:
+            PAR.Optimization['LBFGSMAX'] = 6
 
         # line search parameters
-        if 'SRCHTYPE' not in PAR:
-            setattr(PAR, 'SRCHTYPE', 'Backtrack')
+        if 'SRCHTYPE' not in PAR.Optimization:
+            PAR.Optimization['SRCHTYPE'] = 'Backtrack'
 
-        if 'SRCHMAX' not in PAR:
-            setattr(PAR, 'SRCHMAX', 10)
+        if 'SRCHMAX' not in PAR.Optimization:
+            PAR.Optimization['SRCHMAX'] = 10
 
-        if 'STEPLEN' not in PAR:
-            setattr(PAR, 'STEPLEN', 0.05)
+        if 'STEPLEN' not in PAR.Optimization:
+            PAR.Optimization['STEPLEN'] = 0.05
 
-        if 'STEPMAX' not in PAR:
-            setattr(PAR, 'STEPMAX', 0.)
+        if 'STEPMAX' not in PAR.Optimization:
+            PAR.Optimization['STEPMAX'] = 0.
 
-        if 'ADHOCSCALING' not in PAR:
-            setattr(PAR, 'ADHOCSCALING', 0.)
+        if 'ADHOCSCALING' not in PAR.Optimization:
+            PAR.Optimization['ADHOCSCALING'] = 0.
 
 
 
@@ -88,11 +87,12 @@ class base(object):
         unix.mkdir(cls.path)
 
         # prepare algorithm machinery
-        if PAR.SCHEME in ['ConjugateGradient']:
+        if PAR.Optimization["SCHEME"] in ['ConjugateGradient']:
             cls.NLCG = lib.NLCG(cls.path, PAR.NLCGTHRESH, PAR.NLCGMAX)
 
-        elif PAR.SCHEME in ['QuasiNewton']:
-            cls.LBFGS = lib.LBFGS(cls.path, PAR.LBFGSMAX, PAR.Workflow["BEGIN"])
+        elif PAR.Optimization["SCHEME"] in ['QuasiNewton']:
+            cls.LBFGS = lib.LBFGS(cls.path, PAR.Optimization["LBFGSMAX"],
+                                  PAR.Workflow["BEGIN"])
 
         # prepare output writer
         cls.writer = OutputWriter(PATH.SUBMIT + '/' + 'output.optim',
@@ -110,14 +110,14 @@ class base(object):
         f_new = loadtxt('f_new')
         g_new = loadnpy('g_new')
 
-        if PAR.SCHEME == 'GradientDescent':
+        if PAR.Optimization["SCHEME"] == 'GradientDescent':
             p_new = -g_new
 
-        elif PAR.SCHEME == 'ConjugateGradient':
+        elif PAR.Optimization["SCHEME"] == 'ConjugateGradient':
             # compute NLCG udpate
             p_new = cls.NLCG.compute()
 
-        elif PAR.SCHEME == 'QuasiNewton':
+        elif PAR.Optimization["SCHEME"] == 'QuasiNewton':
             # compute L-BFGS update
             if cls.iter == 1:
                 p_new = -g_new
@@ -162,23 +162,23 @@ class base(object):
         cls.step_ratio = float(len_m/len_d)
 
         if cls.iter == 1:
-            assert PAR.STEPLEN != 0.
-            alpha = PAR.STEPLEN*cls.step_ratio
-        elif PAR.SRCHTYPE in ['Bracket']:
+            assert PAR.Optimization["STEPLEN"] != 0.
+            alpha = PAR.Optimization["STEPLEN"]*cls.step_ratio
+        elif PAR.Optimization["SRCHTYPE"] in ['Bracket']:
             alpha *= 2.*s_old/s_new
-        elif PAR.SCHEME in ['GradientDescent', 'ConjugateGradient']:
+        elif PAR.Optimization["SCHEME"] in ['GradientDescent', 'ConjugateGradient']:
             alpha *= 2.*s_old/s_new
         else:
             alpha = 1.
 
         # ad hoc scaling
-        if PAR.ADHOCSCALING:
-            alpha *= PAR.ADHOCSCALING
+        if PAR.Optimization["ADHOCSCALING"]:
+            alpha *= PAR.Optimization["ADHOCSCALING"]
 
         # limit maximum step length
-        if PAR.STEPMAX > 0.:
-            if alpha/cls.step_ratio > PAR.STEPMAX:
-                alpha = PAR.STEPMAX*cls.step_ratio
+        if PAR.Optimization["STEPMAX"] > 0.:
+            if alpha/cls.step_ratio > PAR.Optimization["STEPMAX"]:
+                alpha = PAR.Optimization["STEPMAX"]*cls.step_ratio
 
         # write trial model
         savenpy('m_try', m + p*alpha)
@@ -210,18 +210,18 @@ class base(object):
             cls.isbest = 1
 
         # are stopping criteria satisfied?
-        if PAR.SRCHTYPE == 'Backtrack':
+        if PAR.Optimization["SRCHTYPE"] == 'Backtrack':
             if any(f[1:] < f[0]):
                 cls.isdone = 1
 
-        elif PAR.SRCHTYPE == 'Bracket':
+        elif PAR.Optimization["SRCHTYPE"] == 'Bracket':
             if cls.isbrak:
                 cls.isbest = 1
                 cls.isdone = 1
             elif any(f[1:] < f[0]) and (f[-2] < f[-1]):
                 cls.isbrak = 1
 
-        elif PAR.SRCHTYPE == 'Fixed':
+        elif PAR.Optimization["SRCHTYPE"] == 'Fixed':
             if any(f[1:] < f[0]) and (f[-2] < f[-1]):
                 cls.isdone = 1
 
@@ -243,10 +243,10 @@ class base(object):
         f = cls.func_vals()
 
         # compute trial step length
-        if PAR.SRCHTYPE == 'Backtrack':
+        if PAR.Optimization["SRCHTYPE"] == 'Backtrack':
             alpha = lib.backtrack2(f0, g0, x[1], f[1], b1=0.1, b2=0.5)
 
-        elif PAR.SRCHTYPE == 'Bracket':
+        elif PAR.Optimization["SRCHTYPE"] == 'Bracket':
             FACTOR = 2.
             if any(f[1:] < f[0]) and (f[-2] < f[-1]):
                 alpha = lib.polyfit2(x, f)
@@ -255,8 +255,8 @@ class base(object):
             else:
                 alpha = loadtxt('alpha')*FACTOR**-1
 
-        elif PAR.SRCHTYPE == 'Fixed':
-            alpha = cls.step_ratio*(step + 1)*PAR.STEPLEN
+        elif PAR.Optimization["SRCHTYPE"] == 'Fixed':
+            alpha = cls.step_ratio*(step + 1)*PAR.Optimization["STEPLEN"]
 
         else:
             raise ValueError

@@ -46,12 +46,10 @@ class inversion(object):
         """
 
         # check parameters
-        if 'BEGIN' not in PAR:
+        if 'BEGIN' not in PAR.Workflow:
             raise Exception
-
         if 'END' not in PAR.Workflow:
             raise Exception
-
         if 'VERBOSE' not in PAR:
             setattr(PAR, 'VERBOSE', 1)
 
@@ -182,7 +180,7 @@ class inversion(object):
         """
         optimize.initialize_search()
 
-        for optimize.step in range(1, PAR.SRCHMAX+1):
+        for optimize.step in range(1, PAR.Optimization["SRCHMAX"]+1):
             isdone = self.search_status()
 
             if isdone == 1:
