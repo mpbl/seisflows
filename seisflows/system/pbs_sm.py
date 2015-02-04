@@ -4,10 +4,10 @@ from os.path import abspath, join
 
 from seisflows.tools import unix
 from seisflows.tools.code import saveobj
-from seisflows.tools.config import getmodule, findpath, ParameterObj
+from seisflows.tools.config import findpath, ParameterObj
 
-PAR = ParameterObj('parameters')
-PATH = ParameterObj('paths')
+PAR = ParameterObj('SeisflowsParameters')
+PATH = ParameterObj('SeisflowsPaths')
 
 
 class pbs_sm(object):
@@ -34,7 +34,7 @@ class pbs_sm(object):
             raise Exception
 
         if 'WALLTIME' not in PAR.General["System"]:
-            PAR.General["System"].["WALLTIME"] = 30.
+            PAR.General["System"]["WALLTIME"] = 30.
 
         if 'VERBOSE' not in PAR:
             setattr(PAR, 'VERBOSE', 1)
